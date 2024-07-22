@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
 }
 
 
-function ShowArtical()
+function ShowProduct()
 {
     $conn = $GLOBALS['conn'];
     $sql = "SELECT * FROM product";

@@ -106,7 +106,7 @@ include '../model/addproduct.php'
                             </tr>
                         
                         <?php 
-                            $product = ShowArtical();
+                            $product = ShowProduct();
 
                             if(!empty($product) && is_array($product)){
                                 foreach($product as $key => $value){
