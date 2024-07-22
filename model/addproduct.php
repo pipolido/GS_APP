@@ -1,5 +1,5 @@
 <?php
-session_start();
+// session_start();
 include 'data.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
@@ -31,8 +31,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
         $_SESSION['message'] = ['text' => 'Information missing', 'type' => 'error'];
     }
 
-    // Redirect to the form page to display the message
+    
     header('Location: ../view/AddProduct.php');
     exit;
 }
+
+
+function ShowArtical()
+{
+    $conn = $GLOBALS['conn'];
+    $sql = "SELECT * FROM product";
+    $req = $conn->prepare($sql);
+    $req->execute();
+    $result = $req->get_result();
+    $rows = $result->fetch_all(MYSQLI_ASSOC);
+    $result->free();
+    return $rows;
+}
+
+
+
 ?>

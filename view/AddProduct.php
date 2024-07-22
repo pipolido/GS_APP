@@ -1,5 +1,6 @@
+
 <?php 
-session_start();
+include '../model/addproduct.php'
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +23,49 @@ session_start();
             background-color: #f44336;
         }
     </style>
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .protab {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+
+        .protab th, .protab td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .protab th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .protab tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .protab tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .protab td {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -51,6 +95,36 @@ session_start();
                     </div>
                 <?php endif; ?>
             </div>
+
+                    <div class="container">
+                        <table class="protab">
+                            <tr>
+                            <th>Id_Product</th>
+                            <th>Product name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            </tr>
+                        
+                        <?php 
+                            $product = ShowArtical();
+
+                            if(!empty($product) && is_array($product)){
+                                foreach($product as $key => $value){
+                        ?>
+                                    <tr>
+                                        <td><?=$value['ID_Product']?></td>
+                                        <td><?=$value['name']?></td>
+                                        <td><?=$value['Price']?></td>
+                                        <td><?=$value['Quantity']?></td>
+
+                                    </tr>  
+                                    <?php       
+                                }
+                            }
+                        ?>
+                        </table>
+                    </div>
+
         </div>
     </form>
 </body>
