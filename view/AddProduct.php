@@ -1,6 +1,17 @@
-
 <?php 
-include '../model/addproduct.php'
+// include '../model/addproduct.php';
+// include '../model/modifyproduct.php';
+include '../model/showProduct.php';
+
+$product = [];
+if (!empty($_GET['id'])) {
+    $product = ShowProduct($_GET['id']);
+    // Debugging: Output the product data
+    // echo '<pre>';
+    // print_r($product);
+    // echo '</pre>';
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +19,9 @@ include '../model/addproduct.php'
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product</title>
+    <title>Add/Modify Product</title>
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+
     <style>
         .alert {
             padding: 10px;
@@ -69,22 +82,26 @@ include '../model/addproduct.php'
 </head>
 
 <body>
-    <form method="post" action="../model/addproduct.php">
+    <form method="post" action="<?= !empty($_GET['id']) && is_array($product) ? "../model/modifyProduct.php" : "../model/addproduct.php" ?>">
         <div class="overview_Boxe">
             <div class="boxe">
                 <label for="Proname">Product Name</label>
-                <input type="text" name="ProductName" id="Proname" placeholder="Name" >
+                <input value="<?= !empty($_GET['id']) && is_array($product) ? htmlspecialchars($product['name']) : "" ?>" type="text" name="ProductName" id="Proname" placeholder="Name">
                 
                 <label for="Price">Price</label>
-                <input type="number" name="Price" id="Price" placeholder="Price" >
+                <input value="<?= !empty($_GET['id']) && is_array($product) ? htmlspecialchars($product['Price']) : "" ?>" type="number" name="Price" id="Price" placeholder="Price">
                 
                 <label for="QT">Quantity</label>
-                <input type="number" name="Quantity" id="QT" placeholder="Quantity" >
+                <input value="<?= !empty($_GET['id']) && is_array($product) ? htmlspecialchars($product['Quantity']) : "" ?>" type="number" name="Quantity" id="QT" placeholder="Quantity">
                 
-                <input type="submit" name="add" id="add" value="ADD">
+                <?php if (!empty($_GET['id'])): ?>
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($_GET['id']) ?>">
+                    <input type="submit" name="update" id="update" value="UPDATE">
+                <?php else: ?>
+                    <input type="submit" name="add" id="add" value="ADD">
+                <?php endif; ?>
 
                 <?php 
-                  
                     $message = isset($_SESSION['message']) ? $_SESSION['message'] : ['text' => '', 'type' => ''];
                     unset($_SESSION['message']);
                 ?>
@@ -96,34 +113,34 @@ include '../model/addproduct.php'
                 <?php endif; ?>
             </div>
 
-                    <div class="container">
-                        <table class="protab">
+            <div class="container">
+                <table class="protab">
+                    <tr>
+                        <th>Id_Product</th>
+                        <th>Product name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                    
+                    <?php 
+                        $products = ShowProduct();
+                        if (!empty($products) && is_array($products)) {
+                            foreach ($products as $product) {
+                    ?>
                             <tr>
-                            <th>Id_Product</th>
-                            <th>Product name</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
+                                <td><?= htmlspecialchars($product['ID_Product']) ?></td>
+                                <td><?= htmlspecialchars($product['name']) ?></td>
+                                <td><?= htmlspecialchars($product['Price']) ?></td>
+                                <td><?= htmlspecialchars($product['Quantity']) ?></td>
+                                <td><a href="?id=<?= htmlspecialchars($product['ID_Product']) ?>"><i class='bx bxs-edit-alt'></i></a></td>
                             </tr>
-                        
-                        <?php 
-                            $product = ShowProduct();
-
-                            if(!empty($product) && is_array($product)){
-                                foreach($product as $key => $value){
-                        ?>
-                                    <tr>
-                                        <td><?=$value['ID_Product']?></td>
-                                        <td><?=$value['name']?></td>
-                                        <td><?=$value['Price']?></td>
-                                        <td><?=$value['Quantity']?></td>
-
-                                    </tr>  
-                                    <?php       
-                                }
+                    <?php 
                             }
-                        ?>
-                        </table>
-                    </div>
+                        }
+                    ?>
+                </table>
+            </div>
 
         </div>
     </form>
