@@ -1,7 +1,7 @@
 <?php
 // session_start();
 // include 'data.php';
-include 'ShowProduct.php';
+include 'Functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add'])) {

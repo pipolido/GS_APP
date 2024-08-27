@@ -1,5 +1,5 @@
 <?php 
-include '../model/showClient.php';
+include '../model/Functions.php';
 
 $Client = [];
 if (!empty($_GET['id'])) {
