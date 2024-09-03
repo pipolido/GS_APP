@@ -1,42 +1,72 @@
 <?php
-// session_start();
- include 'data.php';
+session_start(); 
+
+include 'data.php'; 
 include 'Functions.php';
 
-$products = ShowProduct($_POST['ID_Product']);
+$conn = new mysqli($db_server, $db_user, $db_pass, $db_name);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$productId = $_POST['Proname'];
+$clientId = $_POST['ClientName']; 
+
+$products = ShowProduct($productId);
 
 if (!empty($products) && is_array($products)) {
-    if ($_POST['Quantity'] > $products['Quantity']) {
-        $_SESSION['message']['text'] = "La quantité à vendre n'est pas disponible";
+    $productQuantity = (int) $products['Quantity'];
+    $productPrice = (float) $products['Price'];
+    $requestedQuantity = (int) $_POST['Quantity'];
+
+    if ($requestedQuantity > $productQuantity) {
+        $_SESSION['message']['text'] = "La quantité à vendre n'est pas disponible.";
         $_SESSION['message']['type'] = "danger";
     } else {
-        $sql = "INSERT INTO commande(Quantity, TotalPrice) VALUES (?, ?)";
-        $req = $connexion->prepare($sql);
-        $req->bind_param("ii",$_POST['Quantity'], $_POST['Price']);
-        $req->execute();
-      
-        if ($req->affected_rows != 0) {
-            $sql = "UPDATE product SET Quantity=Quantity-? WHERE ID_Product=?";
-            $sql = $connexion->prepare($sql);
-            $sql->bind_param("is", $_POST['Quantity'], $_POST['Proname']);
-            $sql->execute();
+        $sql = "SELECT ID_Product FROM product WHERE ID_Product = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-            if ($sql->affected_rows != 0) {
-                $_SESSION['message']['text'] = "Purchasing Succeeded.";
+        if ($result->num_rows === 0) {
+            $_SESSION['message']['text'] = "Produit non trouvé.";
+            $_SESSION['message']['type'] = "danger";
+            header('Location: ../view/AddCart.php');
+            exit();
+        }
+
+        $totalPrice = $requestedQuantity * $productPrice;
+
+        $sql = "INSERT INTO commande (ID_Client, ID_Product, Quantity, TotalPrice) VALUES (?, ?, ?, ?)";
+        $req = $conn->prepare($sql);
+        $req->bind_param("iiii", $clientId, $productId, $requestedQuantity, $totalPrice);
+        $req->execute();
+
+        if ($req->affected_rows > 0) {
+            $sql = "UPDATE product SET Quantity = Quantity - ? WHERE ID_Product = ?";
+            $req = $conn->prepare($sql);
+            $req->bind_param("ii", $requestedQuantity, $productId);
+            $req->execute();
+
+            if ($req->affected_rows > 0) {
+                $_SESSION['message']['text'] = "L'achat a réussi. Le prix total est " . $totalPrice . " DH";
                 $_SESSION['message']['type'] = "success";
             } else {
-                $_SESSION['message']['text'] = "Impossible to continue.";
+                $_SESSION['message']['text'] = "Impossible de continuer.";
                 $_SESSION['message']['type'] = "danger";
             }
         } else {
-            $_SESSION['message']['text'] = "There is a problem when adding a product.";
+            $_SESSION['message']['text'] = "Il y a eu un problème lors de l'ajout du produit.";
             $_SESSION['message']['type'] = "danger";
         }
     }
 } else {
-    $_SESSION['message']['text'] = "Some informations are missing.";
+    $_SESSION['message']['text'] = "Certaines informations sont manquantes.";
     $_SESSION['message']['type'] = "danger";
 }
-header('Location: ../view/AddCart.php');
 
+header('Location: ../view/AddCart.php');
+exit();
 ?>
